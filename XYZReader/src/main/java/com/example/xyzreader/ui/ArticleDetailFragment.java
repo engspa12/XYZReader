@@ -1,15 +1,15 @@
 package com.example.xyzreader.ui;
 
-import android.app.Fragment;
-import android.app.LoaderManager;
 import android.content.Intent;
-import android.content.Loader;
+import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
+
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.Rect;
+
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
+
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,7 +20,7 @@ import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ShareCompat;
-import android.support.v7.graphics.Palette;
+
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
@@ -31,10 +31,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
+import com.squareup.picasso.Picasso;
 
 /**
  * A fragment representing a single Article detail screen. This fragment is
@@ -54,22 +53,17 @@ public class ArticleDetailFragment extends Fragment implements
     private int mMutedColor = 0xFF333333;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private AppBarLayout appBarLayout;
-    //private ObservableScrollView mScrollView;
-    //private DrawInsetsFrameLayout mDrawInsetsFrameLayout;
-    //private ColorDrawable mStatusBarColorDrawable;
 
-    //private int mTopInset;
-   // private View mPhotoContainerView;
     private ImageView mPhotoView;
-    //private int mScrollY;
-    //private boolean mIsCard = false;
-    //private int mStatusBarFullOpacityBottom;
+
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
     private SimpleDateFormat outputFormat = new SimpleDateFormat();
     // Most time functions can only handle 1902 - 2037
     private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2,1,1);
+
+
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -79,11 +73,15 @@ public class ArticleDetailFragment extends Fragment implements
     }
 
     public static ArticleDetailFragment newInstance(long itemId) {
+
         Bundle arguments = new Bundle();
-        arguments.putLong(ARG_ITEM_ID, itemId);
         ArticleDetailFragment fragment = new ArticleDetailFragment();
+
+        arguments.putLong(ARG_ITEM_ID, itemId);
+
         fragment.setArguments(arguments);
         return fragment;
+
     }
 
     @Override
@@ -112,7 +110,7 @@ public class ArticleDetailFragment extends Fragment implements
         // the fragment's onCreate may cause the same LoaderManager to be dealt to multiple
         // fragments because their mIndex is -1 (haven't been added to the activity yet). Thus,
         // we do this in onActivityCreated.
-        getLoaderManager().initLoader(0, null, this);
+            getLoaderManager().initLoader(0,null,this);
     }
 
     @Override
@@ -220,26 +218,29 @@ public class ArticleDetailFragment extends Fragment implements
 
             }
             bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n|\n)", "<br />")));
-            ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
-                    .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
-                        @Override
-                        public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
-                            Bitmap bitmap = imageContainer.getBitmap();
-                            if (bitmap != null) {
-                                Palette p = Palette.generate(bitmap, 12);
-                                mMutedColor = p.getDarkMutedColor(0xFF333333);
-                                mPhotoView.setImageBitmap(imageContainer.getBitmap());
-                                mRootView.findViewById(R.id.meta_bar)
-                                        .setBackgroundColor(mMutedColor);
+
+            //ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
+            //        .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
+             //           @Override
+              //          public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
+               //             Bitmap bitmap = imageContainer.getBitmap();
+                //            if (bitmap != null) {
+                 //               Palette p = Palette.generate(bitmap, 12);
+                 //               mMutedColor = p.getDarkMutedColor(0xFF333333);
+                 //               mPhotoView.setImageBitmap(imageContainer.getBitmap());
+                 //               mRootView.findViewById(R.id.meta_bar)
+                  //                      .setBackgroundColor(mMutedColor);
                                // updateStatusBar();
-                            }
-                        }
+                  //          }
+                   //     }
 
-                        @Override
-                        public void onErrorResponse(VolleyError volleyError) {
+                   //     @Override
+                   //     public void onErrorResponse(VolleyError volleyError) {
+                    //
+                    //    }
+                    //});
 
-                        }
-                    });
+            Picasso.get().load(mCursor.getString(ArticleLoader.Query.PHOTO_URL)).into(mPhotoView);
 
             appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
                 boolean isShow = true;
@@ -247,25 +248,21 @@ public class ArticleDetailFragment extends Fragment implements
 
                 @Override
                 public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                    if (scrollRange == -1) {
+                   if (scrollRange == -1) {
                         scrollRange = appBarLayout.getTotalScrollRange();
-                    }
+                   }
                     if (scrollRange + verticalOffset == 0) {
                         collapsingToolbarLayout.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
                         isShow = true;
                     } else if(isShow) {
                         collapsingToolbarLayout.setTitle(" ");//careful there should a space between double quote otherwise it wont work
                         isShow = false;
-                    }
+                   }
                 }
             });
-            getActivity().findViewById(R.id.share_fab).setVisibility(View.VISIBLE);
-            getActivity().findViewById(R.id.action_up).setVisibility(View.VISIBLE);
 
-            //((CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_toolbar_layout)).setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
         } else {
-            getActivity().findViewById(R.id.share_fab).setVisibility(View.GONE);
-            getActivity().findViewById(R.id.action_up).setVisibility(View.GONE);
+
             mRootView.setVisibility(View.GONE);
             titleView.setText("N/A");
             bylineView.setText("N/A" );
@@ -279,7 +276,7 @@ public class ArticleDetailFragment extends Fragment implements
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
         if (!isAdded()) {
             if (cursor != null) {
                 cursor.close();
@@ -294,14 +291,17 @@ public class ArticleDetailFragment extends Fragment implements
             mCursor = null;
         }
 
+
+
         bindViews();
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         mCursor = null;
         bindViews();
     }
+
 
     //public int getUpButtonFloor() {
         //if (mPhotoContainerView == null || mPhotoView.getHeight() == 0) {
