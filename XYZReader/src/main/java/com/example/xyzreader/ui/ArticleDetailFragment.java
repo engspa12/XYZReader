@@ -45,12 +45,10 @@ public class ArticleDetailFragment extends Fragment implements
     private static final String TAG = "ArticleDetailFragment";
 
     public static final String ARG_ITEM_ID = "item_id";
-    private static final float PARALLAX_FACTOR = 1.25f;
 
     private Cursor mCursor;
     private long mItemId;
     private View mRootView;
-    private int mMutedColor = 0xFF333333;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private AppBarLayout appBarLayout;
 
@@ -92,15 +90,8 @@ public class ArticleDetailFragment extends Fragment implements
             mItemId = getArguments().getLong(ARG_ITEM_ID);
         }
 
-        //mIsCard = getResources().getBoolean(R.bool.detail_is_card);
-        //mStatusBarFullOpacityBottom = getResources().getDimensionPixelSize(
-         //       R.dimen.detail_card_top_margin);
-        //setHasOptionsMenu(true);
     }
 
-    //public ArticleDetailActivity getActivityCast() {
-        //return (ArticleDetailActivity) getActivity();
-    //}
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -123,51 +114,12 @@ public class ArticleDetailFragment extends Fragment implements
         collapsingToolbarLayout = (CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_toolbar_layout);
         appBarLayout = (AppBarLayout) mRootView.findViewById(R.id.app_bar_layout);
 
-        //mStatusBarColorDrawable = new ColorDrawable(0);
-
-        getActivity().findViewById(R.id.share_fab).setOnClickListener(
-                new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(getActivity())
-                        .setType("text/plain")
-                        .setText("Some sample text")
-                        .getIntent(), getString(R.string.action_share)));
-            }
-        });
 
         bindViews();
-        //updateStatusBar();
         return mRootView;
     }
 
-    //private void updateStatusBar() {
-     //   int color = 0;
-      //  if (mPhotoView != null && mTopInset != 0 && mScrollY > 0) {
-      //      float f = progress(mScrollY,
-      //              mStatusBarFullOpacityBottom - mTopInset * 3,
-      //              mStatusBarFullOpacityBottom - mTopInset);
-      //      color = Color.argb((int) (255 * f),
-      //              (int) (Color.red(mMutedColor) * 0.9),
-      //              (int) (Color.green(mMutedColor) * 0.9),
-      //              (int) (Color.blue(mMutedColor) * 0.9));
-      //  }
-      //  mStatusBarColorDrawable.setColor(color);
-   // }
 
-    //static float progress(float v, float min, float max) {
-    //    return constrain((v - min) / (max - min), 0, 1);
-    //}
-
-    //static float constrain(float val, float min, float max) {
-     //   if (val < min) {
-      //      return min;
-      //  } else if (val > max) {
-      //      return max;
-      //  } else {
-       //     return val;
-        //}
-    //}
 
     private Date parsePublishedDate() {
         try {
@@ -218,27 +170,6 @@ public class ArticleDetailFragment extends Fragment implements
 
             }
             bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n|\n)", "<br />")));
-
-            //ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
-            //        .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
-             //           @Override
-              //          public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
-               //             Bitmap bitmap = imageContainer.getBitmap();
-                //            if (bitmap != null) {
-                 //               Palette p = Palette.generate(bitmap, 12);
-                 //               mMutedColor = p.getDarkMutedColor(0xFF333333);
-                 //               mPhotoView.setImageBitmap(imageContainer.getBitmap());
-                 //               mRootView.findViewById(R.id.meta_bar)
-                  //                      .setBackgroundColor(mMutedColor);
-                               // updateStatusBar();
-                  //          }
-                   //     }
-
-                   //     @Override
-                   //     public void onErrorResponse(VolleyError volleyError) {
-                    //
-                    //    }
-                    //});
 
             Picasso.get().load(mCursor.getString(ArticleLoader.Query.PHOTO_URL)).into(mPhotoView);
 
@@ -302,15 +233,4 @@ public class ArticleDetailFragment extends Fragment implements
         bindViews();
     }
 
-
-    //public int getUpButtonFloor() {
-        //if (mPhotoContainerView == null || mPhotoView.getHeight() == 0) {
-         //   return Integer.MAX_VALUE;
-       // }
-
-        // account for parallax
-        //return mIsCard
-         //       ? (int) mPhotoContainerView.getTranslationY() + mPhotoView.getHeight() - mScrollY
-          //      : mPhotoView.getHeight() - mScrollY;
-    //}
 }

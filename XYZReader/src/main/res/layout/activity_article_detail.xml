@@ -35,12 +35,6 @@
         android:src="@drawable/ic_share"
         android:stateListAnimator="@animator/fab_state_list_anim" />
 
-    <ProgressBar
-        android:elevation="4dp"
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center" />
 </FrameLayout>
 
 

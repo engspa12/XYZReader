@@ -8,7 +8,7 @@
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="135dp"
+        android:layout_height="160dp"
         android:stateListAnimator="@animator/appbar_elevation"
         android:background="?colorPrimary">
 
@@ -19,7 +19,7 @@
             app:collapsedTitleTextAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse"
             app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse"
             app:expandedTitleMarginStart="72dp"
-            app:contentScrim="@color/extended_toolbar_color"
+            app:contentScrim="@color/theme_primary"
             style="@style/CollapsingToolbarStyle"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 

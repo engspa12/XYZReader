@@ -1,7 +1,9 @@
 package com.example.xyzreader.ui;
 
 
+import android.content.Intent;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.app.ShareCompat;
 import android.support.v4.content.Loader;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
@@ -40,13 +42,8 @@ public class ArticleDetailActivity extends AppCompatActivity
     private Cursor mCursor;
     private long mStartId;
 
-    private long mSelectedItemId;
-    private int mSelectedItemUpButtonFloor = Integer.MAX_VALUE;
+
     private int mTopInset;
-
-    private ProgressBar mProgressBar;
-
-    //private FrameLayout viewpagerContainer;
 
     private ViewPager mPager;
     private MyPagerAdapter mPagerAdapter;
@@ -55,7 +52,6 @@ public class ArticleDetailActivity extends AppCompatActivity
 
     private FloatingActionButton fabButton;
 
-    private boolean desiredFragment;
     private int desiredPosition;
 
     @Override
@@ -68,24 +64,60 @@ public class ArticleDetailActivity extends AppCompatActivity
         }
         setContentView(R.layout.activity_article_detail);
 
-        desiredFragment = false;
+        desiredPosition = -1;
 
         fabButton = (FloatingActionButton) findViewById(R.id.share_fab);
-        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mUpButton = findViewById(R.id.action_up);
         mPager = (ViewPager) findViewById(R.id.pager);
-        //viewpagerContainer = (FrameLayout) findViewById(R.id.viewpager_container);
+
 
         getSupportLoaderManager().initLoader(0,null,this);
+
+        fabButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        shareContent();
+
+                    }
+                });
 
         mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         mUpButtonContainer = findViewById(R.id.up_container);
 
+        mPager.setAdapter(mPagerAdapter);
+        mPager.setPageMargin((int) TypedValue
+                .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
+        mPager.setPageMarginDrawable(new ColorDrawable(0x22000000));
+
+        mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (mCursor != null) {
+                    mCursor.moveToPosition(position);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if(state == ViewPager.SCROLL_STATE_IDLE){
+                    fabButton.setVisibility(View.VISIBLE);
+                    mUpButton.setVisibility(View.VISIBLE);
+                } else{
+                    fabButton.setVisibility(View.GONE);
+                    mUpButton.setVisibility(View.GONE);
+                }
+            }
+        });
+
         mUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //onSupportNavigateUp();
-                //NavUtils.navigateUpFromSameTask(ArticleDetailActivity.this);
                 onBackPressed();
             }
         });
@@ -97,7 +129,6 @@ public class ArticleDetailActivity extends AppCompatActivity
                     view.onApplyWindowInsets(windowInsets);
                     mTopInset = windowInsets.getSystemWindowInsetTop();
                     mUpButtonContainer.setTranslationY(mTopInset);
-                    //updateUpButtonPosition();
                     return windowInsets;
                 }
             });
@@ -106,14 +137,21 @@ public class ArticleDetailActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             if (getIntent() != null && getIntent().getData() != null) {
                 mStartId = ItemsContract.Items.getItemId(getIntent().getData());
-                mSelectedItemId = mStartId;
+
             }
         }
     }
 
+    public void shareContent(){
+        ShareCompat.IntentBuilder.from(this)
+                .setChooserTitle("Share")
+                .setType("text/plain")
+                .setText("Some sample text")
+                .startChooser();
+    }
+
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        //mProgressBar.setVisibility(View.VISIBLE);
         fabButton.setVisibility(View.GONE);
         mUpButton.setVisibility(View.GONE);
         return ArticleLoader.newAllArticlesInstance(this);
@@ -122,43 +160,6 @@ public class ArticleDetailActivity extends AppCompatActivity
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         mCursor = cursor;
-
-        mPager.setAdapter(mPagerAdapter);
-        mPager.setPageMargin((int) TypedValue
-                .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
-        mPager.setPageMarginDrawable(new ColorDrawable(0x22000000));
-
-        mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                mPager.getParent().requestDisallowInterceptTouchEvent(true);
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                if (mCursor != null) {
-                    mCursor.moveToPosition(position);
-                }
-                mSelectedItemId = mCursor.getLong(ArticleLoader.Query._ID);
-                //mCursor.moveToPosition(position);
-                //ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID), true);
-                //updateUpButtonPosition();
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                //mUpButton.animate()
-                //       .alpha((state == ViewPager.SCROLL_STATE_IDLE) ? 1f : 0f)
-                //      .setDuration(500);
-                if(state == ViewPager.SCROLL_STATE_IDLE){
-                    fabButton.setVisibility(View.VISIBLE);
-                    mUpButton.setVisibility(View.VISIBLE);
-                } else{
-                    fabButton.setVisibility(View.GONE);
-                    mUpButton.setVisibility(View.GONE);
-                }
-            }
-        });
 
         mPagerAdapter.notifyDataSetChanged();
 
@@ -170,7 +171,10 @@ public class ArticleDetailActivity extends AppCompatActivity
                 if (mCursor.getLong(ArticleLoader.Query._ID) == mStartId) {
                     int position = mCursor.getPosition();
                     desiredPosition = position;
-                    desiredFragment = true;
+                    if (desiredPosition == 0 || desiredPosition == 1) {
+                        fabButton.setVisibility(View.VISIBLE);
+                        mUpButton.setVisibility(View.VISIBLE);
+                    }
                     mPager.setCurrentItem(position, false);
                     break;
                 }
@@ -186,17 +190,6 @@ public class ArticleDetailActivity extends AppCompatActivity
         mPagerAdapter.notifyDataSetChanged();
     }
 
-    //public void onUpButtonFloorChanged(long itemId, ArticleDetailFragment fragment) {
-    //    if (itemId == mSelectedItemId) {
-    //       mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
-    //       updateUpButtonPosition();
-    //    }
-   //}
-
-   // private void updateUpButtonPosition() {
-   //     int upButtonNormalBottom = mTopInset + mUpButton.getHeight();
-    //    mUpButton.setTranslationY(Math.min(mSelectedItemUpButtonFloor - upButtonNormalBottom, 0));
-   // }
 
     private class MyPagerAdapter extends FragmentStatePagerAdapter {
 
@@ -206,10 +199,12 @@ public class ArticleDetailActivity extends AppCompatActivity
 
         @Override
         public Fragment getItem(int position) {
-            if(desiredFragment && position == (desiredPosition)){
+
+            if(position == desiredPosition){
                 fabButton.setVisibility(View.VISIBLE);
                 mUpButton.setVisibility(View.VISIBLE);
             }
+
             mCursor.moveToPosition(position);
             return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID));
         }
@@ -219,18 +214,7 @@ public class ArticleDetailActivity extends AppCompatActivity
             return (mCursor != null) ? mCursor.getCount() : 0;
         }
 
-        // @Override
-        //public void setPrimaryItem(ViewGroup container, int position, Object object) {
-         //   super.setPrimaryItem(container, position, object);
-            //ArticleDetailFragment fragment = (ArticleDetailFragment) object;
-            //if (fragment != null) {
-              //  Log.v(LOG,"TEST FOR FRAGMENT");
-               //mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
-               //updateUpButtonPosition();
-            //}
-        //}
-
-
-
     }
+
+
 }

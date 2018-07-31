@@ -48,7 +48,6 @@ public class ArticleListActivity extends AppCompatActivity implements
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
 
-    //private boolean newSwipeAvailable;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
@@ -62,7 +61,6 @@ public class ArticleListActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_article_list);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        //final View toolbarContainerView = findViewById(R.id.toolbar_container);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
@@ -105,11 +103,6 @@ public class ArticleListActivity extends AppCompatActivity implements
     };
 
     private void updateRefreshingUI() {
-        //if(mIsRefreshing){
-        //    newSwipeAvailable = false;
-       // } else{
-        //    newSwipeAvailable = true;
-        //}
         mSwipeRefreshLayout.setRefreshing(mIsRefreshing);
     }
 
@@ -136,12 +129,7 @@ public class ArticleListActivity extends AppCompatActivity implements
 
     @Override
     public void onRefresh() {
-       // if(newSwipeAvailable){
             refresh();
-      //  }
-      //  else{
-      //      mSwipeRefreshLayout.setRefreshing(false);
-      //  }
     }
 
     private class Adapter extends RecyclerView.Adapter<ViewHolder> {
@@ -167,8 +155,6 @@ public class ArticleListActivity extends AppCompatActivity implements
                     Intent intent = new Intent(ArticleListActivity.this,ArticleDetailActivity.class);
                     intent.setData(ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition())));
                     startActivity(intent);
-                    //startActivity(new Intent(Intent.ACTION_VIEW,
-                     //       ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
                 }
             });
             return vh;
