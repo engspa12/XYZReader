@@ -1,7 +1,10 @@
 package com.example.xyzreader.ui;
 
 import android.content.Intent;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.transition.TransitionInflater;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -33,6 +36,7 @@ import android.widget.TextView;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -61,6 +65,8 @@ public class ArticleDetailFragment extends Fragment implements
     // Most time functions can only handle 1902 - 2037
     private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2,1,1);
 
+    private static final String EXTRA_TRANSITION_NAME = "transition_name";
+
 
 
     /**
@@ -70,13 +76,13 @@ public class ArticleDetailFragment extends Fragment implements
     public ArticleDetailFragment() {
     }
 
-    public static ArticleDetailFragment newInstance(long itemId) {
+    public static ArticleDetailFragment newInstance(long itemId,String transitionName) {
 
         Bundle arguments = new Bundle();
         ArticleDetailFragment fragment = new ArticleDetailFragment();
 
         arguments.putLong(ARG_ITEM_ID, itemId);
-
+        arguments.putString(EXTRA_TRANSITION_NAME, transitionName);
         fragment.setArguments(arguments);
         return fragment;
 
@@ -85,6 +91,11 @@ public class ArticleDetailFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        postponeEnterTransition();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setSharedElementEnterTransition(TransitionInflater.from(getContext()).inflateTransition(android.R.transition.move).setDuration(1000));
+        }
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             mItemId = getArguments().getLong(ARG_ITEM_ID);
@@ -115,11 +126,20 @@ public class ArticleDetailFragment extends Fragment implements
         appBarLayout = (AppBarLayout) mRootView.findViewById(R.id.app_bar_layout);
 
 
-        bindViews();
+
         return mRootView;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
+        String transitionName = getArguments().getString(EXTRA_TRANSITION_NAME);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mPhotoView.setTransitionName(transitionName);
+        }
+        bindViews();
+    }
 
     private Date parsePublishedDate() {
         try {
@@ -171,7 +191,19 @@ public class ArticleDetailFragment extends Fragment implements
             }
             bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n|\n)", "<br />")));
 
-            Picasso.get().load(mCursor.getString(ArticleLoader.Query.PHOTO_URL)).into(mPhotoView);
+            Picasso.get().load(mCursor.getString(ArticleLoader.Query.PHOTO_URL))
+                    .noFade()
+                    .into(mPhotoView, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            startPostponedEnterTransition();
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            startPostponedEnterTransition();
+                        }
+                    });
 
             appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
                 boolean isShow = true;
@@ -193,7 +225,6 @@ public class ArticleDetailFragment extends Fragment implements
             });
 
         } else {
-
             mRootView.setVisibility(View.GONE);
             titleView.setText("N/A");
             bylineView.setText("N/A" );

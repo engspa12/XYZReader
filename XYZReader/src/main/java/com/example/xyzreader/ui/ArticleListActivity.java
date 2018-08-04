@@ -1,6 +1,9 @@
 package com.example.xyzreader.ui;
 
 
+import android.app.ActivityOptions;
+import android.os.Build;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.content.BroadcastReceiver;
@@ -9,6 +12,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 //import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
@@ -17,11 +21,16 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.format.DateUtils;
+import android.transition.Explode;
+import android.transition.Slide;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.example.xyzreader.R;
@@ -48,6 +57,9 @@ public class ArticleListActivity extends AppCompatActivity implements
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
 
+    public static final String EXTRA_POSITION = "position";
+    public static final String EXTRA_IMAGE_TRANSITION_NAME = "image_transition_name";
+
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
@@ -58,6 +70,13 @@ public class ArticleListActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+            //getWindow().setExitTransition(new Slide().setDuration(2000).setInterpolator(new AccelerateDecelerateInterpolator()));
+            getWindow().setAllowReturnTransitionOverlap(false);
+        }
+
         setContentView(R.layout.activity_article_list);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -67,6 +86,17 @@ public class ArticleListActivity extends AppCompatActivity implements
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         getSupportLoaderManager().initLoader(0, null, this);
+
+       /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Slide slide = new Slide();
+            slide.excludeTarget(R.id.app_bar_layout, true);
+            slide.excludeTarget(android.R.id.statusBarBackground, true);
+            slide.excludeTarget(android.R.id.navigationBarBackground, true);
+            //slide.addTarget(R.id.swipe_refresh_layout);
+            //slide.setInterpolator(AnimationUtils.loadInterpolator(this,android.R.interpolator.linear_out_slow_in));
+            slide.setDuration(200);
+            getWindow().setReenterTransition(slide);
+        }*/
 
         if (savedInstanceState == null) {
            refresh();
@@ -153,8 +183,18 @@ public class ArticleListActivity extends AppCompatActivity implements
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(ArticleListActivity.this,ArticleDetailActivity.class);
+                    intent.putExtra(EXTRA_IMAGE_TRANSITION_NAME, ViewCompat.getTransitionName(vh.thumbnailView));
+                    intent.putExtra(EXTRA_POSITION,vh.getAdapterPosition());
                     intent.setData(ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition())));
-                    startActivity(intent);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                ArticleListActivity.this, vh.thumbnailView, ViewCompat.getTransitionName(vh.thumbnailView));
+                        //startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(ArticleListActivity.this).toBundle());
+                        startActivity(intent, options.toBundle());
+                    } else{
+                        startActivity(intent);
+                    }
+
                 }
             });
             return vh;
@@ -191,6 +231,10 @@ public class ArticleListActivity extends AppCompatActivity implements
                         + "<br/>" + " by "
                         + mCursor.getString(ArticleLoader.Query.AUTHOR)));
             }
+
+            //Setting the transition name
+            ViewCompat.setTransitionName(holder.thumbnailView, mCursor.getString(ArticleLoader.Query.TITLE));
+
             holder.thumbnailView.setImageUrl(
                     mCursor.getString(ArticleLoader.Query.THUMB_URL),
                     ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());

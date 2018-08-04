@@ -2,6 +2,7 @@ package com.example.xyzreader.ui;
 
 
 import android.content.Intent;
+import android.support.transition.TransitionInflater;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.Loader;
@@ -15,12 +16,17 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
+import android.transition.Fade;
+import android.transition.Slide;
 import android.util.TypedValue;
 
+import android.view.MenuItem;
 import android.view.View;
 
+import android.view.Window;
 import android.view.WindowInsets;
 
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ProgressBar;
 
 import android.support.v4.app.FragmentManager;
@@ -57,7 +63,20 @@ public class ArticleDetailActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+            //postponeEnterTransition();
+            //getWindow().setEnterTransition(android.transition.TransitionInflater.from(this).inflateTransition(android.R.transition.move));
+            getWindow().setReturnTransition(null);
+        }
+
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            //getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+            //getWindow().setAllowEnterTransitionOverlap(false);
+            //getWindow().setEnterTransition(new Fade().setDuration(300).setInterpolator(new AccelerateDecelerateInterpolator()));
             getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
                             View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
@@ -168,7 +187,6 @@ public class ArticleDetailActivity extends AppCompatActivity
         // Select the start ID
         if (mStartId > 0) {
             mCursor.moveToFirst();
-            // TODO: optimize
             while (!mCursor.isAfterLast()) {
                 if (mCursor.getLong(ArticleLoader.Query._ID) == mStartId) {
                     int position = mCursor.getPosition();
@@ -208,7 +226,8 @@ public class ArticleDetailActivity extends AppCompatActivity
             }
 
             mCursor.moveToPosition(position);
-            return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID));
+            return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID)
+                    ,mCursor.getString(ArticleLoader.Query.TITLE));
         }
 
         @Override
@@ -218,5 +237,18 @@ public class ArticleDetailActivity extends AppCompatActivity
 
     }
 
-
+   /* @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                //NavUtils.navigateUpFromSameTask(this);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    finishAfterTransition();
+                    //NavUtils.navigateUpFromSameTask(this);
+                }
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }*/
 }
