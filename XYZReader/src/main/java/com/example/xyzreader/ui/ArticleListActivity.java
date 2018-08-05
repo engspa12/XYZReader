@@ -54,13 +54,9 @@ public class ArticleListActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = ArticleListActivity.class.toString();
-    private Toolbar mToolbar;
+
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
-
-    //public static final String EXTRA_POSITION = "position";
-    //public static final String EXTRA_IMAGE_TRANSITION_NAME = "image_transition_name";
-
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
@@ -88,24 +84,11 @@ public class ArticleListActivity extends AppCompatActivity implements
 
         setContentView(R.layout.activity_article_list);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         getSupportLoaderManager().initLoader(0, null, this);
-
-       /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Slide slide = new Slide();
-            slide.excludeTarget(R.id.app_bar_layout, true);
-            slide.excludeTarget(android.R.id.statusBarBackground, true);
-            slide.excludeTarget(android.R.id.navigationBarBackground, true);
-            //slide.addTarget(R.id.swipe_refresh_layout);
-            //slide.setInterpolator(AnimationUtils.loadInterpolator(this,android.R.interpolator.linear_out_slow_in));
-            slide.setDuration(200);
-            getWindow().setReenterTransition(slide);
-        }*/
 
         if (savedInstanceState == null) {
            refresh();
@@ -192,14 +175,9 @@ public class ArticleListActivity extends AppCompatActivity implements
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(ArticleListActivity.this,ArticleDetailActivity.class);
-                    //intent.putExtra(EXTRA_IMAGE_TRANSITION_NAME, ViewCompat.getTransitionName(vh.thumbnailView));
-                    //intent.putExtra(EXTRA_POSITION,vh.getAdapterPosition());
                     intent.setData(ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition())));
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(ArticleListActivity.this).toBundle());
-                        //ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                        // ArticleListActivity.this, vh.thumbnailView, ViewCompat.getTransitionName(vh.thumbnailView));
-                        //startActivity(intent, options.toBundle());
                     } else{
                         startActivity(intent);
                     }
@@ -240,9 +218,6 @@ public class ArticleListActivity extends AppCompatActivity implements
                         + "<br/>" + " by "
                         + mCursor.getString(ArticleLoader.Query.AUTHOR)));
             }
-
-            //Setting the transition name
-            //ViewCompat.setTransitionName(holder.thumbnailView, mCursor.getString(ArticleLoader.Query.TITLE));
 
             holder.thumbnailView.setImageUrl(
                     mCursor.getString(ArticleLoader.Query.THUMB_URL),

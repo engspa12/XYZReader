@@ -51,12 +51,9 @@ public class ArticleDetailActivity extends AppCompatActivity
     private Cursor mCursor;
     private long mStartId;
 
-    private int mTopInset;
-
     private ViewPager mPager;
     private MyPagerAdapter mPagerAdapter;
-    //private View mUpButtonContainer;
-    //private View mUpButton;
+
 
     private FloatingActionButton fabButton;
     private Toolbar myChildToolbar;
@@ -70,8 +67,6 @@ public class ArticleDetailActivity extends AppCompatActivity
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-            //getWindow().setAllowEnterTransitionOverlap(false);
-            //getWindow().setEnterTransition(new Fade().setDuration(300).setInterpolator(new AccelerateDecelerateInterpolator()));
             getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
                             View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
@@ -88,7 +83,6 @@ public class ArticleDetailActivity extends AppCompatActivity
         desiredPosition = -1;
 
         fabButton = (FloatingActionButton) findViewById(R.id.share_fab);
-        //mUpButton = findViewById(R.id.action_up);
         mPager = (ViewPager) findViewById(R.id.pager);
 
 
@@ -104,13 +98,8 @@ public class ArticleDetailActivity extends AppCompatActivity
                 });
 
         mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
-        //mUpButtonContainer = findViewById(R.id.up_container);
 
         mPager.setAdapter(mPagerAdapter);
-        /*mPager.setPageMargin((int) TypedValue
-                .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
-        mPager.setPageMarginDrawable(new ColorDrawable(0x22000000));*/
-
         mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -129,35 +118,13 @@ public class ArticleDetailActivity extends AppCompatActivity
                 if(state == ViewPager.SCROLL_STATE_IDLE){
                     fabButton.setVisibility(View.VISIBLE);
                     myChildToolbar.setVisibility(View.VISIBLE);
-                    //mUpButton.setVisibility(View.VISIBLE);
                 } else{
                     fabButton.setVisibility(View.GONE);
                     myChildToolbar.setVisibility(View.GONE);
-                    //mUpButton.setVisibility(View.GONE);
                 }
             }
         });
 
-    /*   mUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onBackPressed();
-            }
-        });
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
-            mUpButtonContainer.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-                @Override
-                public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        view.onApplyWindowInsets(windowInsets);
-                        mTopInset = windowInsets.getSystemWindowInsetTop();
-                        mUpButtonContainer.setTranslationY(mTopInset);
-                    }
-                    return windowInsets;
-                }
-            });
-        }*/
 
         if (savedInstanceState == null) {
             if (getIntent() != null && getIntent().getData() != null) {
@@ -179,7 +146,6 @@ public class ArticleDetailActivity extends AppCompatActivity
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         fabButton.setVisibility(View.GONE);
         myChildToolbar.setVisibility(View.GONE);
-        //mUpButton.setVisibility(View.GONE);
         return ArticleLoader.newAllArticlesInstance(this);
     }
 
@@ -199,7 +165,6 @@ public class ArticleDetailActivity extends AppCompatActivity
                     if (desiredPosition == 0 || desiredPosition == 1) {
                         fabButton.setVisibility(View.VISIBLE);
                         myChildToolbar.setVisibility(View.VISIBLE);
-                        //mUpButton.setVisibility(View.VISIBLE);
                     }
                     mPager.setCurrentItem(position, false);
                     break;
@@ -229,7 +194,6 @@ public class ArticleDetailActivity extends AppCompatActivity
             if(position == desiredPosition){
                 fabButton.setVisibility(View.VISIBLE);
                 myChildToolbar.setVisibility(View.VISIBLE);
-                //mUpButton.setVisibility(View.VISIBLE);
             }
 
             TransitionSet set = new TransitionSet();
@@ -266,10 +230,8 @@ public class ArticleDetailActivity extends AppCompatActivity
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
-                //NavUtils.navigateUpFromSameTask(this);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     finishAfterTransition();
-                    //NavUtils.navigateUpFromSameTask(this);
                 }
                 return true;
         }

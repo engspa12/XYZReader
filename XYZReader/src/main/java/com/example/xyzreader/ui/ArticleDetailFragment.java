@@ -51,7 +51,6 @@ public class ArticleDetailFragment extends Fragment {
 
     public static final String ARG_ITEM_ID = "item_id";
 
-    //private Cursor mCursor;
     private long mItemId;
     private View mRootView;
     private CollapsingToolbarLayout collapsingToolbarLayout;
@@ -60,9 +59,8 @@ public class ArticleDetailFragment extends Fragment {
     private ImageView mPhotoView;
 
     private int indexString;
-    //private String longString;
     private CharSequence longText;
-    //private StringBuilder builder;
+
 
     private TextView bodyView;
 
@@ -73,7 +71,7 @@ public class ArticleDetailFragment extends Fragment {
     // Most time functions can only handle 1902 - 2037
     private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2,1,1);
 
-    //private static final String EXTRA_TRANSITION_NAME = "transition_name";
+
     private static final String EXTRA_TITLE = "title";
     private static final String EXTRA_AUTHOR = "author";
     private static final String EXTRA_BODY = "body";
@@ -103,7 +101,6 @@ public class ArticleDetailFragment extends Fragment {
         ArticleDetailFragment fragment = new ArticleDetailFragment();
 
         arguments.putLong(ARG_ITEM_ID, itemId);
-        //arguments.putString(EXTRA_TRANSITION_NAME, title);
         arguments.putString(EXTRA_TITLE,title);
         arguments.putString(EXTRA_AUTHOR,author);
         arguments.putString(EXTRA_BODY,body);
@@ -118,11 +115,6 @@ public class ArticleDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /*postponeEnterTransition();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setSharedElementEnterTransition(TransitionInflater.from(getContext()).inflateTransition(android.R.transition.move).setDuration(1000));
-        }*/
-
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             mItemId = getArguments().getLong(ARG_ITEM_ID);
         }
@@ -134,11 +126,6 @@ public class ArticleDetailFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        // In support library r8, calling initLoader for a fragment in a FragmentPagerAdapter in
-        // the fragment's onCreate may cause the same LoaderManager to be dealt to multiple
-        // fragments because their mIndex is -1 (haven't been added to the activity yet). Thus,
-        // we do this in onActivityCreated.
-            //getLoaderManager().initLoader(0,null,this);
     }
 
     @Override
@@ -159,16 +146,13 @@ public class ArticleDetailFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //String transitionName = getArguments().getString(EXTRA_TRANSITION_NAME);
+
         articleTitle = getArguments().getString(EXTRA_TITLE);
         articleAuthor = getArguments().getString(EXTRA_AUTHOR);
         articleBody = getArguments().getString(EXTRA_BODY);
         articlePhotoUrl = getArguments().getString(EXTRA_PHOTO_URL);
         articlePublishedDate = getArguments().getString(EXTRA_PUBLISHED_DATE);
 
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mPhotoView.setTransitionName(transitionName);
-        }*/
         bindViews();
     }
 
@@ -197,7 +181,6 @@ public class ArticleDetailFragment extends Fragment {
 
         bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
-        //if (mCursor != null) {
             mRootView.setAlpha(0);
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
@@ -222,24 +205,19 @@ public class ArticleDetailFragment extends Fragment {
 
             }
 
-            //articleBody = articleBody.replaceAll("(\r\n|\n)","<br />");
-            //articleBody = articleBody.replace(" ","&nbsp;");
-            longText = Html.fromHtml(articleBody.replaceAll("(\r\n|\n)","<br />"));
-            //bodyView.setText(Html.fromHtml(articleBody));
 
-            //bodyView.setText(Html.fromHtml(articleBody).toString().replaceAll("(\r\n|\n)", "<br />"));
-            //int lengthTest = longString.length();
+            longText = Html.fromHtml(articleBody.replaceAll("(\r\n|\n)","<br />"));
+
+
+
             indexString = 0;
-            //builder = new StringBuilder();
-            //builder.append(longText.subSequence(0,1000));
+
             bodyView.setText(longText.subSequence(0,1000));
             indexString = 1000;
             loadMoreButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if(indexString + 1000 <= longText.length()){
-                        //builder.append(longString.substring(indexString,indexString+1000));
-                        //bodyView.append(builder.toString());
                         bodyView.append(longText.subSequence(indexString,indexString+1000));
                         indexString = indexString + 1000;
                     } else {
@@ -253,12 +231,10 @@ public class ArticleDetailFragment extends Fragment {
                     .into(mPhotoView, new Callback() {
                         @Override
                         public void onSuccess() {
-                           // startPostponedEnterTransition();
                         }
 
                         @Override
                         public void onError(Exception e) {
-                           // startPostponedEnterTransition();
                         }
                     });
 
@@ -281,44 +257,7 @@ public class ArticleDetailFragment extends Fragment {
                 }
             });
 
-     /*  } else {
-            mRootView.setVisibility(View.GONE);
-            titleView.setText("N/A");
-            bylineView.setText("N/A" );
-            bodyView.setText("N/A");
-       }*/
     }
 
- /*   @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return ArticleLoader.newInstanceForItemId(getActivity(), mItemId);
-    }
-
-    @Override
-    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
-        if (!isAdded()) {
-            if (cursor != null) {
-                cursor.close();
-            }
-            return;
-        }
-
-        mCursor = cursor;
-        if (mCursor != null && !mCursor.moveToFirst()) {
-            Log.e(TAG, "Error reading item detail cursor");
-            mCursor.close();
-            mCursor = null;
-        }
-
-
-
-        bindViews();
-    }
-
-    @Override
-    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-        mCursor = null;
-        bindViews();
-    }*/
 
 }
