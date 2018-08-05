@@ -30,6 +30,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
@@ -57,8 +58,8 @@ public class ArticleListActivity extends AppCompatActivity implements
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
 
-    public static final String EXTRA_POSITION = "position";
-    public static final String EXTRA_IMAGE_TRANSITION_NAME = "image_transition_name";
+    //public static final String EXTRA_POSITION = "position";
+    //public static final String EXTRA_IMAGE_TRANSITION_NAME = "image_transition_name";
 
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
@@ -71,10 +72,18 @@ public class ArticleListActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-            //getWindow().setExitTransition(new Slide().setDuration(2000).setInterpolator(new AccelerateDecelerateInterpolator()));
             getWindow().setAllowReturnTransitionOverlap(false);
+
+            Slide slide = new Slide();
+            slide.excludeTarget(R.id.app_bar_layout, true);
+            slide.excludeTarget(android.R.id.statusBarBackground, true);
+            slide.excludeTarget(android.R.id.navigationBarBackground, true);
+            slide.setDuration(200);
+            slide.setInterpolator(new AccelerateDecelerateInterpolator());
+
+            getWindow().setReenterTransition(slide);
         }
 
         setContentView(R.layout.activity_article_list);
@@ -183,14 +192,14 @@ public class ArticleListActivity extends AppCompatActivity implements
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(ArticleListActivity.this,ArticleDetailActivity.class);
-                    intent.putExtra(EXTRA_IMAGE_TRANSITION_NAME, ViewCompat.getTransitionName(vh.thumbnailView));
-                    intent.putExtra(EXTRA_POSITION,vh.getAdapterPosition());
+                    //intent.putExtra(EXTRA_IMAGE_TRANSITION_NAME, ViewCompat.getTransitionName(vh.thumbnailView));
+                    //intent.putExtra(EXTRA_POSITION,vh.getAdapterPosition());
                     intent.setData(ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition())));
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                                ArticleListActivity.this, vh.thumbnailView, ViewCompat.getTransitionName(vh.thumbnailView));
-                        //startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(ArticleListActivity.this).toBundle());
-                        startActivity(intent, options.toBundle());
+                        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(ArticleListActivity.this).toBundle());
+                        //ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                        // ArticleListActivity.this, vh.thumbnailView, ViewCompat.getTransitionName(vh.thumbnailView));
+                        //startActivity(intent, options.toBundle());
                     } else{
                         startActivity(intent);
                     }
@@ -233,7 +242,7 @@ public class ArticleListActivity extends AppCompatActivity implements
             }
 
             //Setting the transition name
-            ViewCompat.setTransitionName(holder.thumbnailView, mCursor.getString(ArticleLoader.Query.TITLE));
+            //ViewCompat.setTransitionName(holder.thumbnailView, mCursor.getString(ArticleLoader.Query.TITLE));
 
             holder.thumbnailView.setImageUrl(
                     mCursor.getString(ArticleLoader.Query.THUMB_URL),

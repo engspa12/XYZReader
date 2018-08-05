@@ -2,6 +2,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/detail_background"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -79,6 +80,7 @@
                 app:contentInsetStart="72dp"
                 app:layout_collapseMode="pin" />
 
+
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
@@ -100,16 +102,28 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/detail_inner_horiz_margin"
                 android:layout_marginRight="@dimen/detail_inner_horiz_margin"
-                android:ellipsize="end"
                 android:fontFamily="sans-serif-condensed"
                 android:lineSpacingMultiplier="@fraction/detail_body_line_spacing_multiplier"
-                android:maxLines="50"
                 android:paddingBottom="@dimen/detail_body_bottom_margin"
                 android:paddingTop="@dimen/detail_body_top_margin"
                 android:textColor="@android:color/white"
                 android:textColorLink="@color/theme_accent"
                 android:textSize="@dimen/detail_body_text_size"
                 android:textStyle="italic|bold" />
+
+            <Button
+                android:text="@string/load_more_button_text"
+                android:id="@+id/load_more_button"
+                android:background="@drawable/border_button"
+                android:textAllCaps="false"
+                android:layout_marginBottom="64dp"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:layout_gravity="center"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 

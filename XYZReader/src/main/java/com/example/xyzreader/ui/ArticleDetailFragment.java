@@ -25,12 +25,14 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ShareCompat;
 
 import android.text.Html;
+import android.text.Spanned;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -44,19 +46,25 @@ import com.squareup.picasso.Picasso;
  * either contained in a {@link ArticleListActivity} in two-pane mode (on
  * tablets) or a {@link ArticleDetailActivity} on handsets.
  */
-public class ArticleDetailFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<Cursor> {
+public class ArticleDetailFragment extends Fragment {
     private static final String TAG = "ArticleDetailFragment";
 
     public static final String ARG_ITEM_ID = "item_id";
 
-    private Cursor mCursor;
+    //private Cursor mCursor;
     private long mItemId;
     private View mRootView;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private AppBarLayout appBarLayout;
 
     private ImageView mPhotoView;
+
+    private int indexString;
+    //private String longString;
+    private CharSequence longText;
+    //private StringBuilder builder;
+
+    private TextView bodyView;
 
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
@@ -65,7 +73,19 @@ public class ArticleDetailFragment extends Fragment implements
     // Most time functions can only handle 1902 - 2037
     private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2,1,1);
 
-    private static final String EXTRA_TRANSITION_NAME = "transition_name";
+    //private static final String EXTRA_TRANSITION_NAME = "transition_name";
+    private static final String EXTRA_TITLE = "title";
+    private static final String EXTRA_AUTHOR = "author";
+    private static final String EXTRA_BODY = "body";
+    private static final String EXTRA_PHOTO_URL = "photo_url";
+    private static final String EXTRA_PUBLISHED_DATE = "published_date";
+
+    private String articleTitle;
+    private String articleAuthor;
+    private String articleBody;
+    private String articlePhotoUrl;
+    private String articlePublishedDate;
+
 
 
 
@@ -76,13 +96,19 @@ public class ArticleDetailFragment extends Fragment implements
     public ArticleDetailFragment() {
     }
 
-    public static ArticleDetailFragment newInstance(long itemId,String transitionName) {
+    public static ArticleDetailFragment newInstance(long itemId, String title, String author, String body
+            , String photoUrl, String publishedDate) {
 
         Bundle arguments = new Bundle();
         ArticleDetailFragment fragment = new ArticleDetailFragment();
 
         arguments.putLong(ARG_ITEM_ID, itemId);
-        arguments.putString(EXTRA_TRANSITION_NAME, transitionName);
+        //arguments.putString(EXTRA_TRANSITION_NAME, title);
+        arguments.putString(EXTRA_TITLE,title);
+        arguments.putString(EXTRA_AUTHOR,author);
+        arguments.putString(EXTRA_BODY,body);
+        arguments.putString(EXTRA_PHOTO_URL,photoUrl);
+        arguments.putString(EXTRA_PUBLISHED_DATE,publishedDate);
         fragment.setArguments(arguments);
         return fragment;
 
@@ -92,10 +118,10 @@ public class ArticleDetailFragment extends Fragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        postponeEnterTransition();
+        /*postponeEnterTransition();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setSharedElementEnterTransition(TransitionInflater.from(getContext()).inflateTransition(android.R.transition.move).setDuration(1000));
-        }
+        }*/
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             mItemId = getArguments().getLong(ARG_ITEM_ID);
@@ -112,7 +138,7 @@ public class ArticleDetailFragment extends Fragment implements
         // the fragment's onCreate may cause the same LoaderManager to be dealt to multiple
         // fragments because their mIndex is -1 (haven't been added to the activity yet). Thus,
         // we do this in onActivityCreated.
-            getLoaderManager().initLoader(0,null,this);
+            //getLoaderManager().initLoader(0,null,this);
     }
 
     @Override
@@ -126,7 +152,6 @@ public class ArticleDetailFragment extends Fragment implements
         appBarLayout = (AppBarLayout) mRootView.findViewById(R.id.app_bar_layout);
 
 
-
         return mRootView;
     }
 
@@ -134,16 +159,22 @@ public class ArticleDetailFragment extends Fragment implements
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        String transitionName = getArguments().getString(EXTRA_TRANSITION_NAME);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        //String transitionName = getArguments().getString(EXTRA_TRANSITION_NAME);
+        articleTitle = getArguments().getString(EXTRA_TITLE);
+        articleAuthor = getArguments().getString(EXTRA_AUTHOR);
+        articleBody = getArguments().getString(EXTRA_BODY);
+        articlePhotoUrl = getArguments().getString(EXTRA_PHOTO_URL);
+        articlePublishedDate = getArguments().getString(EXTRA_PUBLISHED_DATE);
+
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mPhotoView.setTransitionName(transitionName);
-        }
+        }*/
         bindViews();
     }
 
     private Date parsePublishedDate() {
         try {
-            String date = mCursor.getString(ArticleLoader.Query.PUBLISHED_DATE);
+            String date = articlePublishedDate;
             return dateFormat.parse(date);
         } catch (ParseException ex) {
             Log.e(TAG, ex.getMessage());
@@ -160,16 +191,17 @@ public class ArticleDetailFragment extends Fragment implements
         TextView titleView = (TextView) mRootView.findViewById(R.id.article_title);
         TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
         bylineView.setMovementMethod(new LinkMovementMethod());
-        TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
+        bodyView = (TextView) mRootView.findViewById(R.id.article_body);
+        Button loadMoreButton = (Button) mRootView.findViewById(R.id.load_more_button);
 
 
         bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
-        if (mCursor != null) {
+        //if (mCursor != null) {
             mRootView.setAlpha(0);
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
-            titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
+            titleView.setText(articleTitle);
             Date publishedDate = parsePublishedDate();
             if (!publishedDate.before(START_OF_EPOCH.getTime())) {
                 bylineView.setText(Html.fromHtml(
@@ -178,30 +210,55 @@ public class ArticleDetailFragment extends Fragment implements
                                 System.currentTimeMillis(), DateUtils.HOUR_IN_MILLIS,
                                 DateUtils.FORMAT_ABBREV_ALL).toString()
                                 + " by <font color='#ffffff'>"
-                                + mCursor.getString(ArticleLoader.Query.AUTHOR)
+                                + articleAuthor
                                 + "</font>"));
 
             } else {
                 // If date is before 1902, just show the string
                 bylineView.setText(Html.fromHtml(
                         outputFormat.format(publishedDate) + " by <font color='#ffffff'>"
-                        + mCursor.getString(ArticleLoader.Query.AUTHOR)
+                        + articleAuthor
                                 + "</font>"));
 
             }
-            bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n|\n)", "<br />")));
 
-            Picasso.get().load(mCursor.getString(ArticleLoader.Query.PHOTO_URL))
+            //articleBody = articleBody.replaceAll("(\r\n|\n)","<br />");
+            //articleBody = articleBody.replace(" ","&nbsp;");
+            longText = Html.fromHtml(articleBody.replaceAll("(\r\n|\n)","<br />"));
+            //bodyView.setText(Html.fromHtml(articleBody));
+
+            //bodyView.setText(Html.fromHtml(articleBody).toString().replaceAll("(\r\n|\n)", "<br />"));
+            //int lengthTest = longString.length();
+            indexString = 0;
+            //builder = new StringBuilder();
+            //builder.append(longText.subSequence(0,1000));
+            bodyView.setText(longText.subSequence(0,1000));
+            indexString = 1000;
+            loadMoreButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(indexString + 1000 <= longText.length()){
+                        //builder.append(longString.substring(indexString,indexString+1000));
+                        //bodyView.append(builder.toString());
+                        bodyView.append(longText.subSequence(indexString,indexString+1000));
+                        indexString = indexString + 1000;
+                    } else {
+                        bodyView.append(longText.subSequence(indexString,longText.length()));
+                    }
+                }
+            });
+
+            Picasso.get().load(articlePhotoUrl)
                     .noFade()
                     .into(mPhotoView, new Callback() {
                         @Override
                         public void onSuccess() {
-                            startPostponedEnterTransition();
+                           // startPostponedEnterTransition();
                         }
 
                         @Override
                         public void onError(Exception e) {
-                            startPostponedEnterTransition();
+                           // startPostponedEnterTransition();
                         }
                     });
 
@@ -215,7 +272,7 @@ public class ArticleDetailFragment extends Fragment implements
                         scrollRange = appBarLayout.getTotalScrollRange();
                    }
                     if (scrollRange + verticalOffset == 0) {
-                        collapsingToolbarLayout.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
+                        collapsingToolbarLayout.setTitle(articleTitle);
                         isShow = true;
                     } else if(isShow) {
                         collapsingToolbarLayout.setTitle(" ");//careful there should a space between double quote otherwise it wont work
@@ -224,15 +281,15 @@ public class ArticleDetailFragment extends Fragment implements
                 }
             });
 
-        } else {
+     /*  } else {
             mRootView.setVisibility(View.GONE);
             titleView.setText("N/A");
             bylineView.setText("N/A" );
             bodyView.setText("N/A");
-        }
+       }*/
     }
 
-    @Override
+ /*   @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         return ArticleLoader.newInstanceForItemId(getActivity(), mItemId);
     }
@@ -262,6 +319,6 @@ public class ArticleDetailFragment extends Fragment implements
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         mCursor = null;
         bindViews();
-    }
+    }*/
 
 }
