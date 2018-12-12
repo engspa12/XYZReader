@@ -31,7 +31,9 @@ src="https://firebasestorage.googleapis.com/v0/b/inventoryapp-c8633.appspot.com/
 
 ## Getting Help
 
-#### To report a specific problem or feature request, open a new issue on Github. For questions, suggestions, or anything else, email to: arturo_lpc@hotmail.com.
+#### To report a specific problem or feature request, open a new issue on Github. For questions, suggestions, or anything else, email to:
+
+###### arturo_lpc@hotmail.com
 
 ## Author
 
