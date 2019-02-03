@@ -41,11 +41,6 @@ import com.example.xyzreader.data.ArticleLoader;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-/**
- * A fragment representing a single Article detail screen. This fragment is
- * either contained in a {@link ArticleListActivity} in two-pane mode (on
- * tablets) or a {@link ArticleDetailActivity} on handsets.
- */
 public class ArticleDetailFragment extends Fragment {
     private static final String TAG = "ArticleDetailFragment";
 
@@ -209,7 +204,7 @@ public class ArticleDetailFragment extends Fragment {
             longText = Html.fromHtml(articleBody.replaceAll("(\r\n|\n)","<br />"));
 
 
-
+            //Set the index to identify the number of characters of the article
             indexString = 0;
 
             bodyView.setText(longText.subSequence(0,1000));
@@ -217,6 +212,7 @@ public class ArticleDetailFragment extends Fragment {
             loadMoreButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    //Verify if we reach the end of the article
                     if(indexString + 1000 <= longText.length()){
                         bodyView.append(longText.subSequence(indexString,indexString+1000));
                         indexString = indexString + 1000;
@@ -238,6 +234,7 @@ public class ArticleDetailFragment extends Fragment {
                         }
                     });
 
+            //This allows to change the title in the article when the transition takes place
             appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
                 boolean isShow = true;
                 int scrollRange = -1;
@@ -251,7 +248,7 @@ public class ArticleDetailFragment extends Fragment {
                         collapsingToolbarLayout.setTitle(articleTitle);
                         isShow = true;
                     } else if(isShow) {
-                        collapsingToolbarLayout.setTitle(" ");//careful there should a space between double quote otherwise it wont work
+                        collapsingToolbarLayout.setTitle(" ");//careful there should a space between double quote otherwise it won't work
                         isShow = false;
                    }
                 }

@@ -60,7 +60,7 @@ public class UpdaterService extends IntentService {
                 throw new JSONException("Invalid parsed item array" );
             }
 
-            //Save content in database
+            //Save content using Content Provider
             for (int i = 0; i < array.length(); i++) {
                 ContentValues values = new ContentValues();
                 JSONObject object = array.getJSONObject(i);

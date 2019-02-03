@@ -44,12 +44,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-/**
- * An activity representing a list of Articles. This activity has different presentations for
- * handset and tablet-size devices. On handsets, the activity presents a list of items, which when
- * touched, lead to a {@link ArticleDetailActivity} representing item details. On tablets, the
- * activity presents a grid of items as cards.
- */
 public class ArticleListActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
 
@@ -72,6 +66,7 @@ public class ArticleListActivity extends AppCompatActivity implements
             getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
             getWindow().setAllowReturnTransitionOverlap(false);
 
+            //Slide animation
             Slide slide = new Slide();
             slide.excludeTarget(R.id.app_bar_layout, true);
             slide.excludeTarget(android.R.id.statusBarBackground, true);
