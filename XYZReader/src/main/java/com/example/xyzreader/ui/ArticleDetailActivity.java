@@ -1,40 +1,34 @@
 package com.example.xyzreader.ui;
 
 
-import android.content.Intent;
-import android.support.transition.TransitionInflater;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.app.ShareCompat;
-import android.support.v4.content.Loader;
+import androidx.transition.TransitionInflater;
+import androidx.loader.app.LoaderManager;
+import androidx.core.app.ShareCompat;
+import androidx.loader.content.Loader;
 import android.database.Cursor;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.transition.Fade;
-import android.transition.Slide;
 import android.transition.TransitionSet;
-import android.util.TypedValue;
 
 import android.view.MenuItem;
 import android.view.View;
 
 import android.view.Window;
-import android.view.WindowInsets;
 
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.ProgressBar;
 
-import android.support.v4.app.FragmentManager;
+import androidx.fragment.app.FragmentManager;
 
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
